@@ -23,6 +23,13 @@ class ZohoClient
     const BASE_URI = 'https://crm.zoho.com/crm/private';
 
     /**
+     * XML element to determine Products in Quotes module
+     *
+     * @var string
+     */
+    const QUOTE_PRODUCTS_ELEMENT = 'QuoteProducts';
+
+    /**
      * Token used for session of request
      *
      * @var string
@@ -528,12 +535,69 @@ class ZohoClient
         foreach ($properties as $property) {
             $propName = $property->getName();
             $propValue = $entity->$propName;
-            if ($propValue !== null) {
-                $xml .= '<FL val="' . str_replace(['_', 'N36', 'E5F', '&', '98T'], [' ', '$', '_', 'and', '?'], $propName) . '"><![CDATA[' . $propValue . ']]></FL>';
+            if ($propName == self::QUOTE_PRODUCTS_ELEMENT) {
+                $this->handleProductsForQuotes($propValue, $xml);
+            } else {
+                if ($propValue !== null) {
+                    $xml .= $this->prepareSingleXmlLine($propName, $propValue);
+                }
             }
 
-        }$xml .= '</row>';
+        }
+        $xml .= '</row>';
         $xml .= '</' . $this->module . '>';
         return $xml;
+    }
+
+    /**
+     * Add XML for Products in Quotes module
+     *
+     * @param  mixed $propValue
+     * @param  string &$xml
+     * @return void
+     */
+    protected function handleProductsForQuotes($propValue, &$xml)
+    {
+        // We need an array when only one product is set as well
+        if ( ! is_array($propValue['product'])) {
+            $propValue['product'] = array($propValue['product']);
+        }
+
+        $xml .= '<FL val="Product Details">';
+        $productCount = 0;
+        foreach ($propValue['product'] as $xmlProduct) {
+            $productCount++;
+            $xml .= '<product no="'.$productCount.'">';
+            foreach ($xmlProduct as $line) {
+                $propName = $line->getName();
+                $propValue = (string) $line;
+                $xml .= $this->prepareSingleXmlLine($propName, $propValue);
+            }
+            $xml .= '</product>';
+        }
+        $xml .= '</FL>';
+    }
+
+    /**
+     * Single line of XML element
+     *
+     * @param  string $propName
+     * @param  string $propValue
+     * @return string
+     */
+    protected function prepareSingleXmlLine($propName, $propValue)
+    {
+        return '<FL val="' . $this->sanitizeKey($propName) . '"><![CDATA[' . $propValue . ']]></FL>';
+    }
+
+    /**
+     * Sanitize element key
+     *
+     * @param  string $propName
+     * @return string
+     */
+    protected function sanitizeKey($propName)
+    {
+        return str_replace(['_', 'N36', 'E5F', '&', '98T'], [' ', '$', '_', 'and', '?'], $propName);
     }
 }

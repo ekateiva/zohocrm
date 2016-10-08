@@ -48,8 +48,19 @@ abstract class Element
             $element = new \SimpleXMLElement($xmlstr);
         } catch (\Exception $ex) {
             return false;
-        }foreach ($element as $name => $value) {
-            $this->$name = stripslashes(urldecode(htmlspecialchars_decode($value)));
+        }
+
+        foreach ($element as $node) {
+            $name = $node->getName();
+
+            // If an elements has children, store them as an array
+            // This is used to add Products to Quotes module
+            if ($node->children()) {
+                $this->$name = (array) $node;
+            } else {
+                $value = (string) $node;
+                $this->$name = stripslashes(urldecode(htmlspecialchars_decode($value)));
+            }
         }
 
         return true;

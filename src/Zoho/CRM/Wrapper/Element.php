@@ -59,7 +59,8 @@ abstract class Element
                 $this->$name = (array) $node;
             } else {
                 $value = (string) $node;
-                $this->$name = stripslashes(urldecode(htmlspecialchars_decode($value)));
+                // $this->$name = stripslashes(urldecode(htmlspecialchars_decode($value)));
+                $this->$name = stripslashes(htmlspecialchars_decode($value));
             }
         }
 

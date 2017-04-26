@@ -85,7 +85,7 @@ abstract class Element
                 continue;
             }
             // Unnecessary fields
-            $key = str_replace(' ', '_', ucwords(str_replace(['_', '$', '%5F', '?'], [' ', 'N36', 'E5F', '98T'], $key)));
+            $key = str_replace(' ', '_', ucwords(str_replace(['_', '$', '%5F', '?', '/'], [' ', 'N36', 'E5F', '98T', 'E2F'], $key)));
             $output .= '<' . $key . '>' . htmlspecialchars($value) . '</' . $key . '>';
         }$output .= '</Lead>';
         return $output;

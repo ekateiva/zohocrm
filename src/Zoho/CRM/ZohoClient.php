@@ -598,6 +598,6 @@ class ZohoClient
      */
     protected function sanitizeKey($propName)
     {
-        return str_replace(['_', 'N36', 'E5F', '&', '98T'], [' ', '$', '_', 'and', '?'], $propName);
+        return str_replace(['_', 'N36', 'E5F', '&', '98T', 'E2F'], [' ', '$', '_', 'and', '?', '/'], $propName);
     }
 }
